@@ -33,9 +33,14 @@ export async function getReport(id: string) {
 }
 
 export async function createBlankReport(): Promise<never> {
+  return openReportForWeek(new Date().toISOString());
+}
+
+// Open (or create) the report for the week containing the given date.
+// Used by both "this week" and the calendar strip.
+export async function openReportForWeek(weekStartISO: string): Promise<never> {
   const user = await requireUser();
-  const weekStart = startOfWeek(new Date());
-  // Upsert so creating "this week" twice opens the existing draft.
+  const weekStart = startOfWeek(new Date(weekStartISO));
   const report = await db.weeklyReport.upsert({
     where: { userId_weekStart: { userId: user.id, weekStart } },
     create: { userId: user.id, weekStart },

@@ -4,7 +4,8 @@ import { KnowledgeTypeSchema } from "./enums";
 
 export const KnowledgeInputSchema = z.object({
   title: z.string().min(3).max(160),
-  content: z.string().min(10).max(20_000),
+  // Generous max so extracted documents (multi-page PDFs) fit.
+  content: z.string().min(10).max(80_000),
   type: KnowledgeTypeSchema.default("DOCUMENT"),
   tags: z.array(z.string().min(1).max(40)).max(10).default([]),
   sourceFilename: z.string().max(200).nullable().optional(),

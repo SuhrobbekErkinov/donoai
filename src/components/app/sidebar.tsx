@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n/client";
+import { Logo } from "@/components/app/logo";
 import {
   LayoutDashboard,
   BookOpen,
   MessageSquareText,
   FileText,
-  ShieldCheck,
   Plus,
   Sparkles,
   Building2,
@@ -16,35 +17,34 @@ import {
 
 type NavItem = {
   href: string;
-  label: string;
+  key: "dashboard" | "knowledge" | "assistant" | "reports";
   icon: React.ComponentType<{ className?: string }>;
   exact?: boolean;
   badge?: string | number;
 };
 
 const NAV: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/knowledge", label: "Knowledge Feed", icon: BookOpen },
-  { href: "/assistant", label: "AI Assistant", icon: MessageSquareText },
-  { href: "/reports", label: "Weekly Reports", icon: FileText },
+  { href: "/dashboard", key: "dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/knowledge", key: "knowledge", icon: BookOpen },
+  { href: "/assistant", key: "assistant", icon: MessageSquareText },
+  { href: "/reports", key: "reports", icon: FileText },
 ];
 
 export function AppSidebar({ orgName }: { orgName: string }) {
   const pathname = usePathname();
+  const { t } = useI18n();
   return (
     <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col border-r border-border bg-sidebar md:flex">
       {/* Brand block */}
       <div className="px-5 pb-2 pt-5">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-foreground to-brand text-white shadow-soft">
-            <ShieldCheck className="h-4 w-4" />
-          </div>
+          <Logo size={36} priority />
           <div className="leading-tight">
             <div className="text-[15px] font-semibold tracking-tight">
               DonoAI
             </div>
             <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Institutional memory
+              {t.nav.tagline}
             </div>
           </div>
         </Link>
@@ -58,7 +58,9 @@ export function AppSidebar({ orgName }: { orgName: string }) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[13px] font-medium">{orgName}</div>
-            <div className="text-[10px] text-muted-foreground">Workspace</div>
+            <div className="text-[10px] text-muted-foreground">
+              {t.nav.workspace}
+            </div>
           </div>
         </div>
       </div>
@@ -66,7 +68,7 @@ export function AppSidebar({ orgName }: { orgName: string }) {
       {/* Nav */}
       <nav className="flex-1 space-y-0.5 px-3">
         <div className="mb-1.5 px-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Workspace
+          {t.nav.workspace}
         </div>
         {NAV.map((item) => {
           const active = item.exact
@@ -96,7 +98,7 @@ export function AppSidebar({ orgName }: { orgName: string }) {
                   active ? "text-brand" : "text-muted-foreground group-hover:text-foreground",
                 )}
               />
-              <span className="flex-1">{item.label}</span>
+              <span className="flex-1">{t.nav[item.key]}</span>
               {item.badge !== undefined && (
                 <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground tabular-nums">
                   {item.badge}
@@ -114,14 +116,14 @@ export function AppSidebar({ orgName }: { orgName: string }) {
           className="group flex items-center gap-2 rounded-lg bg-foreground px-3 py-2.5 text-[13px] font-medium text-background shadow-soft transition-transform hover:-translate-y-px"
         >
           <Plus className="h-4 w-4" />
-          <span className="flex-1">Add knowledge</span>
+          <span className="flex-1">{t.nav.addKnowledge}</span>
         </Link>
         <Link
           href="/assistant"
           className="group flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[12.5px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <Sparkles className="h-3.5 w-3.5 text-brand" />
-          <span className="flex-1">Ask DonoAI</span>
+          <span className="flex-1">{t.nav.askDonoai}</span>
           <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground sm:inline">
             ⌘K
           </kbd>

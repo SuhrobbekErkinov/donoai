@@ -14,6 +14,7 @@ import {
   Clock,
   Calendar,
   Sparkles,
+  Paperclip,
 } from "lucide-react";
 import { isAdminRole, KNOWLEDGE_TYPE_LABELS, type KnowledgeType } from "@/lib/enums";
 
@@ -113,6 +114,12 @@ export default async function KnowledgeDetailPage({
                   <Clock className="h-3 w-3" />
                   {readingTime(k.content)}
                 </span>
+                {k.sourceFilename && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">
+                    <Paperclip className="h-3 w-3" />
+                    {k.sourceFilename}
+                  </span>
+                )}
               </div>
               {tags.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">

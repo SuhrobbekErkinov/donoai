@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
-  ShieldCheck,
   Send,
   Loader2,
   AlertCircle,
@@ -17,9 +16,15 @@ import {
   Briefcase,
   Users,
   CreditCard,
+  Mic,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { renderWithCitations } from "./citation";
+import { useI18n } from "@/lib/i18n/client";
+import { useAudioRecorder } from "@/lib/use-audio-recorder";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
+
+type AssistantT = Dictionary["assistant"];
 
 export type ChatMessage = {
   role: "USER" | "ASSISTANT";
@@ -40,6 +45,7 @@ export function Chat({
   firstName,
 }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [pending, setPending] = useState(false);
   const [draft, setDraft] = useState("");
@@ -162,7 +168,11 @@ export function Chat({
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-6 py-8">
           {isEmpty ? (
-            <EmptyState firstName={firstName} onPick={(q) => void send(q)} />
+            <EmptyState
+              firstName={firstName}
+              onPick={(q) => void send(q)}
+              t={t.assistant}
+            />
           ) : (
             <div className="space-y-8">
               {messages.map((m, i) => (
@@ -194,6 +204,7 @@ export function Chat({
         pending={pending}
         onSubmit={onSubmit}
         onStop={stop}
+        t={t.assistant}
       />
     </div>
   );
@@ -201,11 +212,9 @@ export function Chat({
 
 function ThinkingIndicator() {
   return (
-    <div className="flex items-start gap-3">
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-foreground to-brand text-white">
-        <ShieldCheck className="h-4 w-4" />
-      </div>
-      <div className="flex h-9 items-center gap-1">
+    <div>
+      <div className="mb-1 text-[11.5px] font-medium">DonoAI</div>
+      <div className="flex h-5 items-center gap-1">
         <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground/60" />
         <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground/60" />
         <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground/60" />
@@ -235,28 +244,23 @@ function Bubble({
     );
   }
   return (
-    <div className="flex gap-3">
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-foreground to-brand text-white">
-        <ShieldCheck className="h-4 w-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-2 text-[11.5px]">
-          <span className="font-medium">DonoAI</span>
-          {streaming && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <span className="typing-dot h-1 w-1 rounded-full bg-muted-foreground/60" />
-              <span className="typing-dot h-1 w-1 rounded-full bg-muted-foreground/60" />
-              <span className="typing-dot h-1 w-1 rounded-full bg-muted-foreground/60" />
-            </span>
-          )}
-        </div>
-        <div className="whitespace-pre-wrap text-[14.5px] leading-[1.65]">
-          {renderWithCitations(content)}
-        </div>
-        {!streaming && content && (
-          <MessageActions content={content} highlight={isLatest} />
+    <div className="min-w-0">
+      <div className="mb-1 flex items-center gap-2 text-[11.5px]">
+        <span className="font-medium">DonoAI</span>
+        {streaming && (
+          <span className="flex items-center gap-1 text-muted-foreground">
+            <span className="typing-dot h-1 w-1 rounded-full bg-muted-foreground/60" />
+            <span className="typing-dot h-1 w-1 rounded-full bg-muted-foreground/60" />
+            <span className="typing-dot h-1 w-1 rounded-full bg-muted-foreground/60" />
+          </span>
         )}
       </div>
+      <div className="whitespace-pre-wrap text-[14.5px] leading-[1.65]">
+        {renderWithCitations(content)}
+      </div>
+      {!streaming && content && (
+        <MessageActions content={content} highlight={isLatest} />
+      )}
     </div>
   );
 }
@@ -327,20 +331,52 @@ function Composer({
   pending,
   onSubmit,
   onStop,
+  t,
 }: {
   draft: string;
-  setDraft: (v: string) => void;
+  setDraft: React.Dispatch<React.SetStateAction<string>>;
   pending: boolean;
   onSubmit: (e: React.FormEvent) => void;
   onStop: () => void;
+  t: AssistantT;
 }) {
+  // Mic audio → /api/transcribe (Gemini 2.5 Flash) → fill the draft.
+  const { supported, recording, processing, toggle } = useAudioRecorder({
+    onTranscript: (text) =>
+      setDraft((prev) => (prev ? `${prev} ${text}` : text)),
+    onError: (msg) => toast.error(msg),
+  });
+
+  const placeholder = recording
+    ? t.listening
+    : processing
+      ? t.transcribing
+      : t.placeholder;
+
   return (
     <div className="border-t border-border bg-background/80 backdrop-blur">
-      <form
-        onSubmit={onSubmit}
-        className="mx-auto max-w-3xl px-6 py-4"
-      >
+      <form onSubmit={onSubmit} className="mx-auto max-w-3xl px-6 py-4">
         <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-soft focus-within:border-ring">
+          {supported && (
+            <button
+              type="button"
+              onClick={toggle}
+              disabled={pending || processing}
+              title={recording ? t.micStop : t.micStart}
+              aria-label={recording ? t.micStop : t.micStart}
+              className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl transition-colors disabled:opacity-40 ${
+                recording
+                  ? "bg-rose-100 text-rose-700"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {processing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Mic className={`h-4 w-4 ${recording ? "animate-pulse" : ""}`} />
+              )}
+            </button>
+          )}
           <textarea
             rows={1}
             value={draft}
@@ -356,7 +392,7 @@ function Composer({
                 onSubmit(e as unknown as React.FormEvent);
               }
             }}
-            placeholder="Ask about a workflow, regulation, or tricky case…"
+            placeholder={placeholder}
             disabled={pending}
             className="max-h-[200px] min-h-[36px] flex-1 resize-none bg-transparent px-3 py-2 text-[14px] leading-relaxed outline-none placeholder:text-muted-foreground"
           />
@@ -369,7 +405,7 @@ function Composer({
               className="h-9 shrink-0"
             >
               <Square className="h-3.5 w-3.5 fill-current" />
-              Stop
+              {t.stop}
             </Button>
           ) : (
             <Button
@@ -378,18 +414,12 @@ function Composer({
               size="sm"
               className="h-9 shrink-0"
             >
-              {pending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
+              <Send className="h-4 w-4" />
             </Button>
           )}
         </div>
         <p className="mt-2 text-center text-[10.5px] text-muted-foreground">
-          Answers cite knowledge items by{" "}
-          <span className="font-mono">[1] [2]</span>. Always verify before
-          acting.
+          {t.disclaimer}
         </p>
       </form>
     </div>
@@ -399,9 +429,11 @@ function Composer({
 function EmptyState({
   firstName,
   onPick,
+  t,
 }: {
   firstName?: string | null;
   onPick: (q: string) => void;
+  t: AssistantT;
 }) {
   const categories: {
     label: string;
@@ -410,7 +442,7 @@ function EmptyState({
     prompts: string[];
   }[] = [
     {
-      label: "Compliance",
+      label: t.catCompliance,
       icon: ShieldAlert,
       tone: "brand",
       prompts: [
@@ -419,7 +451,7 @@ function EmptyState({
       ],
     },
     {
-      label: "Customer service",
+      label: t.catCustomerService,
       icon: Users,
       tone: "violet",
       prompts: [
@@ -428,7 +460,7 @@ function EmptyState({
       ],
     },
     {
-      label: "Lending",
+      label: t.catLending,
       icon: Briefcase,
       tone: "amber",
       prompts: [
@@ -437,7 +469,7 @@ function EmptyState({
       ],
     },
     {
-      label: "Operations",
+      label: t.catOperations,
       icon: CreditCard,
       tone: "emerald",
       prompts: [
@@ -458,20 +490,20 @@ function EmptyState({
   return (
     <div className="flex flex-col items-center py-12">
       <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-foreground to-brand text-white shadow-lift">
-        <ShieldCheck className="h-7 w-7" />
+        <Sparkles className="h-6 w-6" />
       </div>
       <h2 className="mt-5 text-[26px] font-semibold tracking-tight">
-        How can I help{firstName ? `, ${firstName}` : ""}?
+        {t.greeting}
+        {firstName ? `, ${firstName}` : ""}?
       </h2>
       <p className="mx-auto mt-2 max-w-md text-center text-[14px] leading-relaxed text-muted-foreground">
-        Ask anything covered by your bank's knowledge base. Every answer cites
-        its source so you can verify.
+        {t.subtitle}
       </p>
 
       <div className="mt-10 w-full">
         <div className="mb-3 flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           <Sparkles className="h-3 w-3 text-brand" />
-          Try asking
+          {t.tryAsking}
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {categories.map((cat) => {

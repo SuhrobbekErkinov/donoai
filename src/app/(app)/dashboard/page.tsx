@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/require-auth";
+import { getDictionary } from "@/lib/i18n/server";
 import { PageHeader } from "@/components/app/page-header";
 import { IconBadge } from "@/components/app/icon-badge";
 import { TypeIcon } from "@/components/app/type-badge";
@@ -17,16 +18,18 @@ import {
   Library,
 } from "lucide-react";
 
-function timeOfDayGreeting() {
+function greetingKey(): "greetingLate" | "greetingMorning" | "greetingAfternoon" | "greetingEvening" {
   const h = new Date().getHours();
-  if (h < 5) return "Working late";
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
+  if (h < 5) return "greetingLate";
+  if (h < 12) return "greetingMorning";
+  if (h < 18) return "greetingAfternoon";
+  return "greetingEvening";
 }
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  const { dict } = await getDictionary();
+  const t = dict.dashboard;
   const since7d = new Date(Date.now() - 7 * 86400_000);
 
   const [
@@ -67,13 +70,13 @@ export default async function DashboardPage() {
         })}
         title={
           <>
-            {timeOfDayGreeting()},{" "}
+            {t[greetingKey()]},{" "}
             <span className="text-muted-foreground">
               {user.name?.split(" ")[0]}.
             </span>
           </>
         }
-        description="Your bank's institutional knowledge — ready when you need it."
+        description={t.subtitle}
       />
 
       {/* Stats */}
@@ -81,30 +84,32 @@ export default async function DashboardPage() {
         <StatTile
           icon={<Library className="h-4 w-4" />}
           tone="brand"
-          label="Knowledge items"
+          label={t.statKnowledge}
           value={knowledgeCount}
           delta={
-            weekKnowledgeCount > 0 ? `+${weekKnowledgeCount} this week` : "—"
+            weekKnowledgeCount > 0
+              ? `+${weekKnowledgeCount} ${t.thisWeek}`
+              : "—"
           }
         />
         <StatTile
           icon={<Users className="h-4 w-4" />}
           tone="sky"
-          label="People"
+          label={t.statPeople}
           value={peopleCount}
         />
         <StatTile
           icon={<MessageSquareText className="h-4 w-4" />}
           tone="violet"
-          label="Your conversations"
+          label={t.statConversations}
           value={myConvCount}
         />
         <StatTile
           icon={<TrendingUp className="h-4 w-4" />}
           tone="emerald"
-          label="Citation rate"
+          label={t.statCitation}
           value="100%"
-          hint="answers grounded"
+          hint={t.citationHint}
         />
       </div>
 
@@ -114,22 +119,22 @@ export default async function DashboardPage() {
           href="/knowledge"
           icon={<BookOpen className="h-5 w-5" />}
           tone="brand"
-          title="Browse knowledge"
-          body="Search workflows, cases, and best practices."
+          title={t.browseKnowledge}
+          body={t.browseKnowledgeBody}
         />
         <ActionCard
           href="/assistant"
           icon={<MessageSquareText className="h-5 w-5" />}
           tone="violet"
-          title="Ask the assistant"
-          body="Get answers grounded in your bank's documented practice."
+          title={t.askAssistant}
+          body={t.askAssistantBody}
         />
         <ActionCard
           href="/reports"
           icon={<FileText className="h-5 w-5" />}
           tone="amber"
-          title="Weekly report"
-          body="Auto-draft from this week's actual activity."
+          title={t.weeklyReport}
+          body={t.weeklyReportBody}
         />
       </div>
 
@@ -138,21 +143,21 @@ export default async function DashboardPage() {
         {/* Recent knowledge */}
         <section>
           <SectionTitle
-            title="Recently added knowledge"
+            title={t.recentKnowledge}
             action={
               <Link
                 href="/knowledge/new"
                 className="inline-flex items-center gap-1 text-[12px] font-medium text-brand hover:underline"
               >
                 <Plus className="h-3.5 w-3.5" />
-                Add
+                {t.add}
               </Link>
             }
           />
           {recent.length === 0 ? (
             <EmptyPanel
               icon={<BookOpen className="h-5 w-5" />}
-              text="No knowledge items yet."
+              text={t.noKnowledge}
             />
           ) : (
             <ul className="space-y-2">
@@ -188,21 +193,21 @@ export default async function DashboardPage() {
         {/* Recent conversations */}
         <section>
           <SectionTitle
-            title="Your recent chats"
+            title={t.yourChats}
             action={
               <Link
                 href="/assistant"
                 className="inline-flex items-center gap-1 text-[12px] font-medium text-brand hover:underline"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                New
+                {t.new}
               </Link>
             }
           />
           {myConvs.length === 0 ? (
             <EmptyPanel
               icon={<MessageSquareText className="h-5 w-5" />}
-              text="You haven't asked anything yet."
+              text={t.noChats}
             />
           ) : (
             <ul className="space-y-2">

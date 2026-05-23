@@ -8,6 +8,7 @@ import {
   type ChatTurn,
 } from "@/lib/ai";
 import { AssistantQuerySchema } from "@/lib/schemas";
+import { getLocale } from "@/lib/i18n/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   const user = await requireUser();
+  const locale = await getLocale();
 
   let body: unknown;
   try {
@@ -96,6 +98,7 @@ export async function POST(req: NextRequest) {
           question,
           history,
           knowledge,
+          locale,
         })) {
           full += delta;
           controller.enqueue(

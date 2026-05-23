@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LinkButton } from "@/components/ui/link-button";
+import { useI18n } from "@/lib/i18n/client";
 import { Plus, MessageSquareText, Sparkles } from "lucide-react";
 
 export type ConversationSummary = {
@@ -18,6 +19,7 @@ export function ConversationSidebar({
   conversations: ConversationSummary[];
 }) {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   return (
     <aside className="hidden h-[calc(100vh-60px)] w-72 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
@@ -28,12 +30,12 @@ export function ConversationSidebar({
           className="w-full justify-start gap-2"
         >
           <Plus className="h-4 w-4" />
-          New conversation
+          {t.assistant.newConversation}
         </LinkButton>
       </div>
 
       <div className="px-4 pb-1 pt-4 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        History
+        {t.assistant.history}
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 pb-3">

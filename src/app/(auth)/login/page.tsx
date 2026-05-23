@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LoginForm } from "./login-form";
-import { ShieldCheck, Lock, BookOpen, Sparkles } from "lucide-react";
+import { Logo } from "@/components/app/logo";
+import { Lock, BookOpen, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
   return (
@@ -9,9 +10,7 @@ export default function LoginPage() {
       <div className="bg-grain relative hidden flex-col justify-between overflow-hidden border-r border-border bg-gradient-to-br from-foreground via-foreground to-brand p-12 text-background lg:flex">
         <div>
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 backdrop-blur-sm">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
+            <Logo size={36} priority className="ring-white/20" />
             <span className="font-semibold tracking-tight">DonoAI</span>
           </Link>
         </div>
@@ -52,9 +51,7 @@ export default function LoginPage() {
             href="/"
             className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground lg:hidden"
           >
-            <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-foreground to-brand text-white">
-              <ShieldCheck className="h-3.5 w-3.5" />
-            </div>
+            <Logo size={28} />
             DonoAI
           </Link>
 

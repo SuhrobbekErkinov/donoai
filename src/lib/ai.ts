@@ -8,6 +8,7 @@
 // swap in vector retrieval — the public function signatures stay the same.
 
 import { GoogleGenAI } from "@google/genai";
+import { LOCALE_AI_INSTRUCTION, type Locale } from "./i18n/config";
 
 const MODEL = "gemini-2.5-flash";
 
@@ -53,17 +54,89 @@ function getKey(): string {
   return key;
 }
 
+// Extract text from an uploaded document (PDF / image) with Gemini 2.5 Flash.
+// Gemini is multimodal — it reads native-text PDFs AND performs OCR on scanned
+// pages or photos, so no separate OCR engine is needed. Returns Markdown.
+export async function extractDocumentText(args: {
+  base64: string;
+  mimeType: string;
+}): Promise<string> {
+  const ai = new GoogleGenAI({ apiKey: getKey() });
+  const res = await ai.models.generateContent({
+    model: MODEL,
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: [
+              "Extract ALL text from this document into clean, well-structured Markdown.",
+              "Preserve headings, lists, and tables. Transcribe everything verbatim — do NOT summarize or omit content.",
+              "If the document is scanned or a photo, perform OCR.",
+              "Keep the original language of the document.",
+              "Output ONLY the Markdown content — no commentary, no surrounding code fences.",
+            ].join(" "),
+          },
+          { inlineData: { mimeType: args.mimeType, data: args.base64 } },
+        ],
+      },
+    ],
+  });
+  return (res.text ?? "").trim();
+}
+
+// Transcribe recorded mic audio with Gemini 2.5 Flash. Unlike the browser's
+// Web Speech API, Gemini handles Uzbek well. We pass a language hint based on
+// the chosen locale to improve accuracy.
+export async function transcribeAudio(args: {
+  base64: string;
+  mimeType: string;
+  locale?: Locale;
+}): Promise<string> {
+  const ai = new GoogleGenAI({ apiKey: getKey() });
+
+  const langHint =
+    args.locale === "uz"
+      ? "The speaker is most likely speaking Uzbek (o‘zbek tili). Transcribe in Uzbek Latin script."
+      : args.locale === "ru"
+        ? "The speaker is most likely speaking Russian."
+        : "The speaker is most likely speaking English.";
+
+  const res = await ai.models.generateContent({
+    model: MODEL,
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `Transcribe this voice recording to text, verbatim. ${langHint} Output ONLY the transcription — no quotes, no commentary, no preamble. If the audio is empty or unintelligible, output an empty string.`,
+          },
+          { inlineData: { mimeType: args.mimeType, data: args.base64 } },
+        ],
+      },
+    ],
+  });
+
+  return (res.text ?? "").trim();
+}
+
 // Stream an assistant reply given the user's question, conversation history,
 // and the full org knowledge corpus. Yields text deltas as strings.
 export async function* streamAssistantReply(args: {
   question: string;
   history: ChatTurn[];
   knowledge: KnowledgeChunk[];
+  locale?: Locale;
 }): AsyncGenerator<string> {
   const ai = new GoogleGenAI({ apiKey: getKey() });
 
+  const languageRule = args.locale
+    ? `\n\n# Language\n${LOCALE_AI_INSTRUCTION[args.locale]} Keep all citation tags like [Kxxxx] exactly as-is regardless of language.`
+    : "";
+
   const systemInstruction =
     ASSISTANT_SYSTEM_PROMPT +
+    languageRule +
     `\n\n# Knowledge base\n\n${renderKnowledgeContext(args.knowledge)}`;
 
   // Gemini uses role: "user" | "model". Map our ASSISTANT → "model".

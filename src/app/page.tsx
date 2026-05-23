@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LinkButton } from "@/components/ui/link-button";
+import { Logo } from "@/components/app/logo";
 import {
-  ShieldCheck,
   BookOpen,
   MessageSquareText,
   FileText,
@@ -30,9 +30,7 @@ function SiteHeader() {
     <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-foreground to-brand text-white">
-            <ShieldCheck className="h-4 w-4" />
-          </div>
+          <Logo size={32} priority />
           <span className="font-semibold tracking-tight">DonoAI</span>
         </Link>
         <nav className="flex items-center gap-1.5">
@@ -139,10 +137,7 @@ function HeroMockup() {
         </div>
 
         {/* Assistant block */}
-        <div className="mt-4 flex gap-3">
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-foreground to-brand text-white">
-            <ShieldCheck className="h-4 w-4" />
-          </div>
+        <div className="mt-4">
           <div className="flex-1">
             <div className="mb-1 text-[11px] font-medium text-muted-foreground">
               DonoAI
@@ -306,9 +301,7 @@ function SiteFooter() {
     <footer className="border-t border-border">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 text-sm text-muted-foreground">
         <div className="flex items-center gap-2.5">
-          <div className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-foreground to-brand text-white">
-            <ShieldCheck className="h-3 w-3" />
-          </div>
+          <Logo size={24} />
           <span>DonoAI — institutional memory for modern banks.</span>
         </div>
         <Link

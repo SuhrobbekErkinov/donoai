@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/require-auth";
+import { getDictionary } from "@/lib/i18n/server";
 import { listKnowledge } from "@/server/knowledge";
 import { LinkButton } from "@/components/ui/link-button";
 import { PageHeader } from "@/components/app/page-header";
@@ -20,6 +21,8 @@ export default async function KnowledgeListPage({
 }) {
   const sp = await searchParams;
   const user = await requireUser();
+  const { dict } = await getDictionary();
+  const tr = dict.knowledge;
 
   const [items, counts] = await Promise.all([
     listKnowledge({ type: sp.type, q: sp.q }),
@@ -38,13 +41,13 @@ export default async function KnowledgeListPage({
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 lg:py-12">
       <PageHeader
-        eyebrow="Workspace"
-        title="Knowledge Feed"
-        description="Workflows, cases, and best practices documented by your team. Every item the AI cites lives here."
+        eyebrow={dict.nav.workspace}
+        title={tr.title}
+        description={tr.subtitle}
         actions={
           <LinkButton href="/knowledge/new">
             <Plus className="h-4 w-4" />
-            Add knowledge
+            {tr.add}
           </LinkButton>
         }
       />
@@ -57,7 +60,7 @@ export default async function KnowledgeListPage({
             name="q"
             type="search"
             defaultValue={sp.q ?? ""}
-            placeholder="Search title, content, or summary…"
+            placeholder={tr.searchPlaceholder}
             className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
           />
           {sp.type && <input type="hidden" name="type" value={sp.type} />}
@@ -65,7 +68,7 @@ export default async function KnowledgeListPage({
         <div className="flex flex-wrap gap-1.5 overflow-x-auto">
           <FilterPill
             href={sp.q ? `/knowledge?q=${encodeURIComponent(sp.q)}` : "/knowledge"}
-            label="All"
+            label={tr.all}
             count={totalCount}
             active={!sp.type}
           />
@@ -85,16 +88,12 @@ export default async function KnowledgeListPage({
         {items.length === 0 ? (
           <EmptyState
             icon={<BookOpen />}
-            title={hasFilter ? "No matches" : "Your knowledge base is empty"}
-            description={
-              hasFilter
-                ? "Try removing filters, or contribute the first matching item."
-                : "The first contribution is the start of your institutional memory. Document a workflow, a resolved case, or a best practice."
-            }
+            title={hasFilter ? tr.noMatches : tr.emptyTitle}
+            description={hasFilter ? tr.noMatchesBody : tr.emptyBody}
             action={
               <LinkButton href="/knowledge/new">
                 <Plus className="h-4 w-4" />
-                Add knowledge
+                {tr.add}
               </LinkButton>
             }
           />

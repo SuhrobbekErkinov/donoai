@@ -1,14 +1,14 @@
 // DonoAI Prisma schema.
-// SQLite for local dev; ports cleanly to Postgres for production.
-// SQLite has no native enums — "enum" fields are strings constrained
-// by TypeScript unions in src/lib/enums.ts.
+// Postgres (Neon) for both local dev and production — single source of truth.
+// "Enum" fields are stored as strings constrained by TypeScript unions in
+// src/lib/enums.ts, keeping the schema portable across providers.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

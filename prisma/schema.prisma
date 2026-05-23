@@ -1,0 +1,106 @@
+// DonoAI Prisma schema.
+// SQLite for local dev; ports cleanly to Postgres for production.
+// SQLite has no native enums — "enum" fields are strings constrained
+// by TypeScript unions in src/lib/enums.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  createdAt DateTime @default(now())
+
+  users          User[]
+  knowledgeItems KnowledgeItem[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  image        String?
+  passwordHash String
+  role         String   @default("EMPLOYEE") // EMPLOYEE | ADMIN
+  department   String?
+  orgId        String
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  authoredKnowledge KnowledgeItem[]
+  conversations     Conversation[]
+  reports           WeeklyReport[]
+
+  @@index([orgId])
+}
+
+model KnowledgeItem {
+  id             String   @id @default(cuid())
+  orgId          String
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title          String
+  content        String   // user-authored body
+  summary        String?  // AI-generated short summary
+  type           String   @default("DOCUMENT") // WORKFLOW|DOCUMENT|CASE|BEST_PRACTICE|TIP
+  tags           String   @default("[]") // JSON array of strings
+  sourceFilename String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([orgId, type])
+  @@index([orgId, createdAt])
+  @@index([authorId])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String   @default("New conversation")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+
+  @@index([userId, updatedAt])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String   // USER | ASSISTANT
+  content        String
+  citations      String   @default("[]") // JSON array of KnowledgeItem IDs
+  createdAt      DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model WeeklyReport {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart       DateTime // Monday of the reported week
+  tasksCompleted  String   @default("")
+  challenges      String   @default("")
+  keyActivities   String   @default("")
+  aiSummary       String?  // optional AI-rolled-up summary
+  status          String   @default("DRAFT") // DRAFT | SUBMITTED
+  submittedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, weekStart])
+  @@index([userId, weekStart])
+}

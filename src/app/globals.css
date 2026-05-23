@@ -1,26 +1,311 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* DonoAI design tokens — calm, professional, warm.
+   Background: warm cream (not clinical white)
+   Brand: deep teal (#0F766E neighborhood) used sparingly
+   Borders: blue-tinted hairlines */
+:root {
+  --background: oklch(0.985 0.005 95);
+  --foreground: oklch(0.22 0.02 230);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.42 0.10 195);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.005 95);
+  --secondary-foreground: oklch(0.30 0.02 230);
+  --muted: oklch(0.96 0.005 95);
+  --muted-foreground: oklch(0.50 0.015 230);
+  --accent: oklch(0.94 0.025 195);
+  --accent-foreground: oklch(0.32 0.09 195);
+  --destructive: oklch(0.56 0.20 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.92 0.008 230);
+  --input: oklch(0.94 0.008 230);
+  --ring: oklch(0.55 0.12 195);
+  --brand: oklch(0.42 0.10 195);
+  --brand-foreground: oklch(0.99 0 0);
+  --brand-soft: oklch(0.95 0.03 195);
+  --chart-1: oklch(0.55 0.18 195);
+  --chart-2: oklch(0.60 0.15 230);
+  --chart-3: oklch(0.65 0.12 60);
+  --chart-4: oklch(0.55 0.15 340);
+  --chart-5: oklch(0.50 0.18 145);
+  --radius: 0.875rem;
+  --sidebar: oklch(0.98 0.005 95);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+.dark {
+  --background: oklch(0.15 0.01 230);
+  --foreground: oklch(0.96 0.005 95);
+  --card: oklch(0.20 0.012 230);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.20 0.012 230);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.60 0.15 195);
+  --primary-foreground: oklch(0.15 0.01 230);
+  --secondary: oklch(0.25 0.015 230);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.25 0.015 230);
+  --muted-foreground: oklch(0.65 0.015 230);
+  --accent: oklch(0.30 0.05 195);
+  --accent-foreground: oklch(0.80 0.10 195);
+  --destructive: oklch(0.65 0.20 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.30 0.015 230);
+  --input: oklch(0.28 0.015 230);
+  --ring: oklch(0.55 0.12 195);
+  --brand: oklch(0.60 0.15 195);
+  --brand-foreground: oklch(0.15 0.01 230);
+  --brand-soft: oklch(0.28 0.05 195);
+  --sidebar: oklch(0.17 0.01 230);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  /* Tabular numerals everywhere we show numbers — feels more banking-ish. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Refined selection color — soft teal, not garish blue. */
+  ::selection {
+    background-color: var(--brand-soft);
+    color: var(--accent-foreground);
+  }
+
+  /* Subtle, narrow scrollbar in muted color. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: oklch(0.85 0.008 230);
+    border-radius: 10px;
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(0.75 0.012 230);
   }
 }
 
-body {
-  background: var(--background);
+/* Markdown / long-form content prose. */
+.prose-donoai {
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.65;
+  font-size: 0.9375rem;
 }
+.prose-donoai h1,
+.prose-donoai h2,
+.prose-donoai h3,
+.prose-donoai h4 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.25;
+}
+.prose-donoai h1 { font-size: 1.6rem; margin-top: 0; }
+.prose-donoai h2 { font-size: 1.25rem; }
+.prose-donoai h3 { font-size: 1.05rem; }
+.prose-donoai h4 { font-size: 0.95rem; }
+.prose-donoai p { margin: 0.8em 0; }
+.prose-donoai ul,
+.prose-donoai ol {
+  margin: 0.8em 0;
+  padding-left: 1.4em;
+}
+.prose-donoai ul { list-style: disc; }
+.prose-donoai ol { list-style: decimal; }
+.prose-donoai li {
+  margin: 0.3em 0;
+}
+.prose-donoai li::marker {
+  color: var(--muted-foreground);
+}
+.prose-donoai strong { font-weight: 600; }
+.prose-donoai em { font-style: italic; }
+.prose-donoai a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-decoration-color: oklch(0.55 0.12 195 / 0.4);
+  text-underline-offset: 2px;
+}
+.prose-donoai a:hover {
+  text-decoration-color: var(--brand);
+}
+.prose-donoai code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--muted);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  color: var(--foreground);
+}
+.prose-donoai pre {
+  background: oklch(0.22 0.02 230);
+  color: oklch(0.95 0.005 95);
+  padding: 1rem 1.2rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin: 1.2em 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+.prose-donoai pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+.prose-donoai blockquote {
+  border-left: 3px solid var(--brand);
+  padding-left: 1rem;
+  margin: 1em 0;
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+.prose-donoai hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2em 0;
+}
+.prose-donoai table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.875rem;
+}
+.prose-donoai th,
+.prose-donoai td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.prose-donoai th {
+  font-weight: 600;
+  background: var(--muted);
+}
+
+/* Subtle animated grain overlay we'll use on hero sections.
+   Pure CSS, no asset needed. */
+.bg-grain {
+  position: relative;
+}
+.bg-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    oklch(0.50 0.015 230 / 0.04) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+/* Hand-tuned shadow stacks — softer than tailwind defaults. */
+.shadow-soft {
+  box-shadow:
+    0 1px 2px oklch(0.20 0.02 230 / 0.04),
+    0 4px 16px oklch(0.20 0.02 230 / 0.04);
+}
+.shadow-lift {
+  box-shadow:
+    0 2px 4px oklch(0.20 0.02 230 / 0.05),
+    0 12px 32px oklch(0.20 0.02 230 / 0.08);
+}
+
+/* Typing dots animation for the assistant. */
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: 0.2; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+.typing-dot {
+  animation: typing-dot 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }

@@ -7,7 +7,7 @@ export const ru: Dictionary = {
     dashboard: "Панель управления",
     knowledge: "Лента знаний",
     assistant: "ИИ-ассистент",
-    reports: "Еженедельные отчёты",
+    reports: "Отчёты",
     addKnowledge: "Добавить знание",
     askDonoai: "Спросить DonoAI",
   },
@@ -91,9 +91,9 @@ export const ru: Dictionary = {
     liveHint: "Говорите свободно. DonoAI отвечает из базы знаний банка.",
   },
   reports: {
-    title: "Еженедельные отчёты",
+    title: "Отчёты",
     subtitle:
-      "Личные еженедельные сводки — DonoAI автоматически составляет черновик из того, что вы делали на этой неделе.",
+      "Личные еженедельные сводки — DonoAI автоматически составляет черновик из того, что вы делали на той неделе.",
     openThisWeek: "Открыть отчёт за эту неделю",
     emptyTitle: "Пока нет отчётов",
     recentWeeks: "Последние недели",
@@ -103,5 +103,8 @@ export const ru: Dictionary = {
     notStarted: "Не начато",
     weekOf: "Неделя:",
     history: "Все отчёты",
+    pickWeek: "Выберите неделю в календаре",
+    open: "Открыть отчёт",
+    selectedWeek: "Выбранная неделя",
   },
 };

@@ -7,7 +7,7 @@ export const uz: Dictionary = {
     dashboard: "Boshqaruv paneli",
     knowledge: "Bilimlar lentasi",
     assistant: "AI yordamchi",
-    reports: "Haftalik hisobotlar",
+    reports: "Hisobotlar",
     addKnowledge: "Bilim qo‘shish",
     askDonoai: "DonoAI’dan so‘rang",
   },
@@ -91,9 +91,9 @@ export const uz: Dictionary = {
     liveHint: "Erkin gapiring. DonoAI bank bilimlariga asoslanib javob beradi.",
   },
   reports: {
-    title: "Haftalik hisobotlar",
+    title: "Hisobotlar",
     subtitle:
-      "Shaxsiy haftalik xulosalar — DonoAI tomonidan shu haftada qilgan ishlaringizdan avtomatik tuziladi.",
+      "Shaxsiy haftalik xulosalar — DonoAI tomonidan o‘sha haftada qilgan ishlaringizdan avtomatik tuziladi.",
     openThisWeek: "Shu haftalik hisobotni ochish",
     emptyTitle: "Hozircha hisobotlar yo‘q",
     recentWeeks: "So‘nggi haftalar",
@@ -103,5 +103,8 @@ export const uz: Dictionary = {
     notStarted: "Boshlanmagan",
     weekOf: "Hafta:",
     history: "Barcha hisobotlar",
+    pickWeek: "Kalendardan haftani tanlang",
+    open: "Hisobotni ochish",
+    selectedWeek: "Tanlangan hafta",
   },
 };

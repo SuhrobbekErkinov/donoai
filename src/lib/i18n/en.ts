@@ -6,7 +6,7 @@ export const en = {
     dashboard: "Dashboard",
     knowledge: "Knowledge Feed",
     assistant: "AI Assistant",
-    reports: "Weekly Reports",
+    reports: "Reports",
     addKnowledge: "Add knowledge",
     askDonoai: "Ask DonoAI",
   },
@@ -91,9 +91,9 @@ export const en = {
     liveHint: "Speak naturally. DonoAI answers from your bank's knowledge.",
   },
   reports: {
-    title: "Weekly Reports",
+    title: "Reports",
     subtitle:
-      "Personal weekly summaries — auto-drafted by DonoAI from what you actually did this week.",
+      "Personal weekly summaries — auto-drafted by DonoAI from what you actually did that week.",
     openThisWeek: "Open this week's report",
     emptyTitle: "No reports yet",
     recentWeeks: "Recent weeks",
@@ -103,5 +103,8 @@ export const en = {
     notStarted: "Not started",
     weekOf: "Week of",
     history: "All reports",
+    pickWeek: "Pick a week from the calendar",
+    open: "Open report",
+    selectedWeek: "Selected week",
   },
 } as const;

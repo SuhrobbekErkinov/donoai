@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/i18n/config";
 import { LanguageSwitcher } from "@/components/app/language-switcher";
 import { NotificationMenu } from "@/components/app/notification-menu";
 import { UserMenu } from "@/components/app/user-menu";
+import { ThemeToggle } from "@/components/app/theme-toggle";
 import { Search } from "lucide-react";
 
 export async function AppTopbar({
@@ -43,6 +44,7 @@ export async function AppTopbar({
       </form>
 
       <div className="ml-auto flex items-center gap-1.5">
+        <ThemeToggle />
         <LanguageSwitcher current={locale} />
         <NotificationMenu
           labels={{

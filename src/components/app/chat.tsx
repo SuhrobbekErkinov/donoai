@@ -12,10 +12,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   Sparkles,
-  ShieldAlert,
-  Briefcase,
-  Users,
-  CreditCard,
   Mic,
   AudioLines,
 } from "lucide-react";
@@ -171,11 +167,7 @@ export function Chat({
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-6 py-8">
           {isEmpty ? (
-            <EmptyState
-              firstName={firstName}
-              onPick={(q) => void send(q)}
-              t={t.assistant}
-            />
+            <EmptyState firstName={firstName} t={t.assistant} />
           ) : (
             <div className="space-y-8">
               {messages.map((m, i) => (
@@ -458,67 +450,13 @@ function Composer({
 
 function EmptyState({
   firstName,
-  onPick,
   t,
 }: {
   firstName?: string | null;
-  onPick: (q: string) => void;
   t: AssistantT;
 }) {
-  const categories: {
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-    tone: "brand" | "violet" | "amber" | "emerald" | "sky";
-    prompts: string[];
-  }[] = [
-    {
-      label: t.catCompliance,
-      icon: ShieldAlert,
-      tone: "brand",
-      prompts: [
-        "How do I file a SAR?",
-        "When is Enhanced Due Diligence required?",
-      ],
-    },
-    {
-      label: t.catCustomerService,
-      icon: Users,
-      tone: "violet",
-      prompts: [
-        "What's the Reg E timeline for debit card fraud?",
-        "How do I handle a large unusual withdrawal request?",
-      ],
-    },
-    {
-      label: t.catLending,
-      icon: Briefcase,
-      tone: "amber",
-      prompts: [
-        "What docs are needed for a self-employed mortgage applicant?",
-        "How do I phrase an adverse-action denial?",
-      ],
-    },
-    {
-      label: t.catOperations,
-      icon: CreditCard,
-      tone: "emerald",
-      prompts: [
-        "What's the recovery process for a misdirected wire?",
-        "How do I triage an end-of-day cash variance?",
-      ],
-    },
-  ];
-
-  const tones: Record<string, string> = {
-    brand: "bg-brand-soft text-accent-foreground",
-    violet: "bg-violet-100 text-violet-800",
-    amber: "bg-amber-100 text-amber-800",
-    emerald: "bg-emerald-100 text-emerald-800",
-    sky: "bg-sky-100 text-sky-800",
-  };
-
   return (
-    <div className="flex flex-col items-center py-12">
+    <div className="flex min-h-[55vh] flex-col items-center justify-center py-12 text-center">
       <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-foreground to-brand text-white shadow-lift">
         <Sparkles className="h-6 w-6" />
       </div>
@@ -526,50 +464,9 @@ function EmptyState({
         {t.greeting}
         {firstName ? `, ${firstName}` : ""}?
       </h2>
-      <p className="mx-auto mt-2 max-w-md text-center text-[14px] leading-relaxed text-muted-foreground">
+      <p className="mx-auto mt-2 max-w-md text-[14px] leading-relaxed text-muted-foreground">
         {t.subtitle}
       </p>
-
-      <div className="mt-10 w-full">
-        <div className="mb-3 flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          <Sparkles className="h-3 w-3 text-brand" />
-          {t.tryAsking}
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {categories.map((cat) => {
-            const Icon = cat.icon;
-            return (
-              <div
-                key={cat.label}
-                className="rounded-xl border border-border bg-card p-4"
-              >
-                <div className="mb-3 flex items-center gap-2">
-                  <div
-                    className={`grid h-7 w-7 place-items-center rounded-md ${tones[cat.tone]}`}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-[12.5px] font-semibold">
-                    {cat.label}
-                  </span>
-                </div>
-                <div className="space-y-1.5">
-                  {cat.prompts.map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => onPick(p)}
-                      className="block w-full rounded-md px-2.5 py-1.5 text-left text-[13px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }

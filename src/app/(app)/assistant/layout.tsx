@@ -28,8 +28,8 @@ export default async function AssistantLayout({
 
   return (
     <div className="flex h-full min-h-[calc(100vh-60px)]">
-      <ConversationSidebar conversations={summaries} />
       <div className="min-w-0 flex-1">{children}</div>
+      <ConversationSidebar conversations={summaries} />
     </div>
   );
 }

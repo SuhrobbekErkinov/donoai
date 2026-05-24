@@ -1,21 +1,12 @@
 import Link from "next/link";
 import { listReports } from "@/server/reports";
 import { getDictionary } from "@/lib/i18n/server";
-import { lastNWeeks, weekKey } from "@/lib/weeks";
+import { LOCALE_BCP47 } from "@/lib/i18n/config";
 import { PageHeader } from "@/components/app/page-header";
 import { EmptyState } from "@/components/app/empty-state";
 import { NewReportButton } from "@/components/app/new-report-button";
-import {
-  WeekCalendarStrip,
-  type WeekCell,
-} from "@/components/app/week-calendar-strip";
+import { WeekPicker } from "@/components/app/week-picker";
 import { FileText, Calendar, CheckCircle2, Clock } from "lucide-react";
-
-const localeTag: Record<string, string> = {
-  en: "en-US",
-  uz: "uz",
-  ru: "ru-RU",
-};
 
 export default async function ReportsPage() {
   const [reports, { locale, dict }] = await Promise.all([
@@ -23,30 +14,9 @@ export default async function ReportsPage() {
     getDictionary(),
   ]);
   const tr = dict.reports;
+  const tag = LOCALE_BCP47[locale];
 
-  // Build the calendar strip: last 8 weeks, each annotated with its report.
-  const byWeek = new Map(
-    reports.map((r) => [weekKey(new Date(r.weekStart)), r]),
-  );
-  const fmt = new Intl.DateTimeFormat(localeTag[locale] ?? "en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-  const thisWeekKey = weekKey(lastNWeeks(1)[0]);
-  const weeks: WeekCell[] = lastNWeeks(8).map((monday) => {
-    const sunday = new Date(monday.getTime() + 6 * 86_400_000);
-    const key = weekKey(monday);
-    const report = byWeek.get(key);
-    return {
-      weekStartISO: monday.toISOString(),
-      rangeLabel: `${fmt.format(monday)} – ${fmt.format(sunday)}`,
-      isCurrent: key === thisWeekKey,
-      report: report ? { id: report.id, status: report.status } : null,
-    };
-  });
-
-  const dateFmt = new Intl.DateTimeFormat(localeTag[locale] ?? "en-US", {
+  const dateFmt = new Intl.DateTimeFormat(tag, {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -61,22 +31,20 @@ export default async function ReportsPage() {
         actions={<NewReportButton />}
       />
 
-      {/* Calendar strip */}
+      {/* Calendar week picker */}
       <div className="mt-8">
-        <WeekCalendarStrip
-          weeks={weeks}
+        <WeekPicker
+          localeTag={tag}
           labels={{
-            recentWeeks: tr.recentWeeks,
-            thisWeek: tr.thisWeek,
-            draft: tr.draft,
-            submitted: tr.submitted,
-            notStarted: tr.notStarted,
+            pickWeek: tr.pickWeek,
+            selectedWeek: tr.selectedWeek,
+            open: tr.open,
           }}
         />
       </div>
 
       {/* Full history */}
-      <div className="mt-10">
+      <div className="mt-8">
         {reports.length === 0 ? (
           <EmptyState
             icon={<FileText />}
@@ -118,10 +86,8 @@ export default async function ReportsPage() {
                         <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-muted-foreground">
                           <Clock className="h-3 w-3" />
                           {submitted && r.submittedAt
-                            ? `${tr.submitted} · ${new Date(r.submittedAt).toLocaleDateString(localeTag[locale] ?? "en-US")}`
-                            : new Date(r.updatedAt).toLocaleDateString(
-                                localeTag[locale] ?? "en-US",
-                              )}
+                            ? `${tr.submitted} · ${new Date(r.submittedAt).toLocaleDateString(tag)}`
+                            : new Date(r.updatedAt).toLocaleDateString(tag)}
                         </div>
                       </div>
                       <span

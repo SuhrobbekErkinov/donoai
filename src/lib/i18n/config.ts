@@ -1,6 +1,6 @@
-export const LOCALES = ["en", "uz", "ru"] as const;
+export const LOCALES = ["uz", "en", "ru"] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = "en";
+export const DEFAULT_LOCALE: Locale = "uz";
 export const LOCALE_COOKIE = "donoai_locale";
 
 // Native names shown in the switcher.

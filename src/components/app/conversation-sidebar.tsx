@@ -22,7 +22,7 @@ export function ConversationSidebar({
   const { t } = useI18n();
 
   return (
-    <aside className="hidden h-[calc(100vh-60px)] w-72 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+    <aside className="hidden h-[calc(100vh-60px)] w-72 shrink-0 flex-col border-l border-border bg-sidebar lg:flex">
       <div className="border-b border-border p-3">
         <LinkButton
           href="/assistant"

@@ -63,25 +63,36 @@ function getKey(): string {
 // Voice-tuned, KB-grounded system instruction. Baked into the ephemeral token
 // server-side so the knowledge base never reaches the browser and the session
 // can't be re-pointed at generic Gemini.
-function liveSystemInstruction(chunks: KnowledgeChunk[]): string {
+function liveSystemInstruction(
+  chunks: KnowledgeChunk[],
+  locale?: Locale,
+): string {
+  const lang =
+    locale === "uz"
+      ? "Speak Uzbek by default (o‘zbek tilida), unless the user clearly speaks another language."
+      : locale === "ru"
+        ? "Speak Russian by default, unless the user clearly speaks another language."
+        : "Reply in the same language the user speaks; default to English.";
   return [
     "You are DonoAI, a voice assistant for a bank's employees, having a SPOKEN conversation.",
     "Answer ONLY from the bank's documented knowledge below. If something isn't covered, say so plainly and suggest documenting it — do not guess.",
     "Because this is spoken: keep replies short and conversational (1–4 sentences). No markdown, no bullet characters, no bracketed citation tags.",
     "When you rely on a specific item, name it naturally in speech (e.g. \"per the SAR filing workflow\").",
-    "Reply in the same language the user speaks. Stay calm, professional, and warm.",
+    `${lang} Stay calm, professional, and warm.`,
     "",
     "# Knowledge base",
     renderKnowledgeContext(chunks),
   ].join("\n");
 }
 
-// Mint a short-lived token AND return the exact session config. The browser
-// connects with this same config object, so it matches the token's constraints
-// precisely (a mismatch makes the server close the socket right after opening).
-// The real GEMINI_API_KEY stays server-side; the KB system instruction is the
-// user's own org knowledge, so returning it to the authenticated client is fine.
-export async function createLiveSession(knowledge: KnowledgeChunk[]): Promise<{
+// Mint a short-lived token AND return the session config. The browser connects
+// with this same config object. The real GEMINI_API_KEY stays server-side; the
+// KB system instruction is the user's own org knowledge, so returning it to the
+// authenticated client is fine.
+export async function createLiveSession(
+  knowledge: KnowledgeChunk[],
+  locale?: Locale,
+): Promise<{
   token: string;
   model: string;
   config: Record<string, unknown>;
@@ -92,7 +103,7 @@ export async function createLiveSession(knowledge: KnowledgeChunk[]): Promise<{
   });
   const config = {
     responseModalities: [Modality.AUDIO],
-    systemInstruction: liveSystemInstruction(knowledge),
+    systemInstruction: liveSystemInstruction(knowledge, locale),
     inputAudioTranscription: {},
     outputAudioTranscription: {},
     speechConfig: {

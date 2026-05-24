@@ -10,6 +10,7 @@ function isPublic(pathname: string): boolean {
   if (pathname.startsWith("/_next")) return true;
   if (pathname.startsWith("/api/auth")) return true;
   if (pathname === "/login") return true;
+  if (pathname === "/register") return true;
   return false;
 }
 
@@ -40,8 +41,8 @@ export const authConfig: NextAuthConfig = {
       const isLoggedIn = !!auth?.user;
       const path = nextUrl.pathname;
 
-      // /login: if already signed in, redirect to dashboard.
-      if (path === "/login") {
+      // Auth pages: if already signed in, redirect to dashboard.
+      if (path === "/login" || path === "/register") {
         if (isLoggedIn) {
           return NextResponse.redirect(new URL("/dashboard", nextUrl));
         }

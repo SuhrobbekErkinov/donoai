@@ -6,13 +6,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, ArrowRight } from "lucide-react";
-import { login, type LoginState } from "./actions";
+import { register, type RegisterState } from "./actions";
 
-export function LoginForm() {
-  const [state, formAction] = useActionState<LoginState, FormData>(login, null);
+export function RegisterForm() {
+  const [state, formAction] = useActionState<RegisterState, FormData>(
+    register,
+    null,
+  );
 
   return (
     <form action={formAction} className="space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="name" className="text-[13px]">
+          Full name
+        </Label>
+        <Input
+          id="name"
+          name="name"
+          type="text"
+          autoComplete="name"
+          placeholder="Jane Doe"
+          className="h-11"
+          required
+        />
+        {state?.fieldErrors?.name && (
+          <p className="text-xs text-destructive">
+            {state.fieldErrors.name[0]}
+          </p>
+        )}
+      </div>
       <div className="space-y-1.5">
         <Label htmlFor="email" className="text-[13px]">
           Work email
@@ -40,7 +62,8 @@ export function LoginForm() {
           id="password"
           name="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
+          placeholder="At least 6 characters"
           className="h-11"
           required
         />
@@ -72,7 +95,7 @@ function SubmitButton() {
       size="lg"
       className="h-11 w-full text-[14px]"
     >
-      {pending ? "Signing in…" : "Sign in to DonoAI"}
+      {pending ? "Creating account…" : "Create account"}
       {!pending && <ArrowRight className="ml-1 h-4 w-4" />}
     </Button>
   );

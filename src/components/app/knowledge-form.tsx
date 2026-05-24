@@ -352,7 +352,7 @@ export function KnowledgeForm({ initial }: Props) {
             Content
           </Label>
           <span className="text-[11px] text-muted-foreground">
-            {wordCount.toLocaleString()} words · markdown supported
+            {wordCount.toLocaleString("en-US")} words · markdown supported
           </span>
         </div>
         <Textarea

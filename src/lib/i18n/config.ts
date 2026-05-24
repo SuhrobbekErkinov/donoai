@@ -10,6 +10,13 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   ru: "Русский",
 };
 
+// BCP-47 tags for Intl date/number formatting.
+export const LOCALE_BCP47: Record<Locale, string> = {
+  en: "en-US",
+  uz: "uz",
+  ru: "ru-RU",
+};
+
 // How the AI is told to answer.
 export const LOCALE_AI_INSTRUCTION: Record<Locale, string> = {
   en: "Respond in English.",

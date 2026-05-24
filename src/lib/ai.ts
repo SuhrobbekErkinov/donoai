@@ -7,10 +7,15 @@
 // hundreds of typical knowledge items. When the corpus grows past that,
 // swap in vector retrieval — the public function signatures stay the same.
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 import { LOCALE_AI_INSTRUCTION, type Locale } from "./i18n/config";
 
 const MODEL = "gemini-2.5-flash";
+// Live (bidirectional audio) model for the voice-to-voice assistant.
+// Override with GEMINI_LIVE_MODEL — the Live WebSocket runs on v1main, so the
+// model must be one served there for bidiGenerateContent.
+export const LIVE_MODEL =
+  process.env.GEMINI_LIVE_MODEL || "gemini-3.1-flash-live-preview";
 
 export type KnowledgeChunk = {
   id: string;
@@ -52,6 +57,60 @@ function getKey(): string {
     );
   }
   return key;
+}
+
+// --- Live voice assistant (Gemini Live API) ---------------------------------
+// Voice-tuned, KB-grounded system instruction. Baked into the ephemeral token
+// server-side so the knowledge base never reaches the browser and the session
+// can't be re-pointed at generic Gemini.
+function liveSystemInstruction(chunks: KnowledgeChunk[]): string {
+  return [
+    "You are DonoAI, a voice assistant for a bank's employees, having a SPOKEN conversation.",
+    "Answer ONLY from the bank's documented knowledge below. If something isn't covered, say so plainly and suggest documenting it — do not guess.",
+    "Because this is spoken: keep replies short and conversational (1–4 sentences). No markdown, no bullet characters, no bracketed citation tags.",
+    "When you rely on a specific item, name it naturally in speech (e.g. \"per the SAR filing workflow\").",
+    "Reply in the same language the user speaks. Stay calm, professional, and warm.",
+    "",
+    "# Knowledge base",
+    renderKnowledgeContext(chunks),
+  ].join("\n");
+}
+
+// Mint a short-lived token AND return the exact session config. The browser
+// connects with this same config object, so it matches the token's constraints
+// precisely (a mismatch makes the server close the socket right after opening).
+// The real GEMINI_API_KEY stays server-side; the KB system instruction is the
+// user's own org knowledge, so returning it to the authenticated client is fine.
+export async function createLiveSession(knowledge: KnowledgeChunk[]): Promise<{
+  token: string;
+  model: string;
+  config: Record<string, unknown>;
+}> {
+  const ai = new GoogleGenAI({
+    apiKey: getKey(),
+    httpOptions: { apiVersion: "v1alpha" },
+  });
+  const config = {
+    responseModalities: [Modality.AUDIO],
+    systemInstruction: liveSystemInstruction(knowledge),
+    inputAudioTranscription: {},
+    outputAudioTranscription: {},
+    speechConfig: {
+      voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } },
+    },
+  };
+  // No liveConnectConstraints: the token authorizes a single live session and
+  // the browser provides the model + config at connect time. This avoids
+  // mint-time model validation against the wrong API version.
+  const token = await ai.authTokens.create({
+    config: {
+      uses: 1,
+      expireTime: new Date(Date.now() + 30 * 60_000).toISOString(),
+      newSessionExpireTime: new Date(Date.now() + 2 * 60_000).toISOString(),
+    },
+  });
+  if (!token.name) throw new Error("Failed to create live token");
+  return { token: token.name, model: LIVE_MODEL, config };
 }
 
 // Extract text from an uploaded document (PDF / image) with Gemini 2.5 Flash.

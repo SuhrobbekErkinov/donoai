@@ -9,7 +9,7 @@ import { Plus, MessageSquareText, Sparkles } from "lucide-react";
 export type ConversationSummary = {
   id: string;
   title: string;
-  updatedAt: Date;
+  dateLabel: string; // pre-formatted on the server to avoid hydration mismatch
   _count: { messages: number };
 };
 
@@ -76,11 +76,7 @@ export function ConversationSidebar({
                     <div
                       className={`mt-0.5 text-[10.5px] ${active ? "text-accent-foreground/70" : "text-muted-foreground"}`}
                     >
-                      {c._count.messages} msg ·{" "}
-                      {new Date(c.updatedAt).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                      })}
+                      {c._count.messages} msg · {c.dateLabel}
                     </div>
                   </div>
                 </div>

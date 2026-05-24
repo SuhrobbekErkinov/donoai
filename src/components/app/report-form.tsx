@@ -23,6 +23,7 @@ import { saveReport, submitReport, deleteReport } from "@/server/reports";
 type Props = {
   reportId: string;
   weekStart: string;
+  weekLabel: string; // pre-formatted on the server (avoids hydration mismatch)
   initial: {
     tasksCompleted: string;
     challenges: string;
@@ -86,7 +87,13 @@ const SECTIONS = [
   },
 ];
 
-export function ReportForm({ reportId, weekStart, initial, status }: Props) {
+export function ReportForm({
+  reportId,
+  weekStart,
+  weekLabel,
+  initial,
+  status,
+}: Props) {
   const router = useRouter();
   const [tasks, setTasks] = useState(initial.tasksCompleted);
   const [activities, setActivities] = useState(initial.keyActivities);
@@ -205,7 +212,7 @@ export function ReportForm({ reportId, weekStart, initial, status }: Props) {
                   Submitted — read only
                 </div>
                 <div className="text-[11.5px] text-emerald-800/70">
-                  Week of {new Date(weekStart).toLocaleDateString()}
+                  {weekLabel}
                 </div>
               </div>
             </>

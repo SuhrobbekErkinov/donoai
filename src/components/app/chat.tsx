@@ -17,9 +17,11 @@ import {
   Users,
   CreditCard,
   Mic,
+  AudioLines,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { renderWithCitations } from "./citation";
+import { LiveVoicePanel } from "./live-voice-panel";
 import { useI18n } from "@/lib/i18n/client";
 import { useAudioRecorder } from "@/lib/use-audio-recorder";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -46,6 +48,7 @@ export function Chat({
 }: Props) {
   const router = useRouter();
   const { t } = useI18n();
+  const [liveOpen, setLiveOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [pending, setPending] = useState(false);
   const [draft, setDraft] = useState("");
@@ -204,7 +207,22 @@ export function Chat({
         pending={pending}
         onSubmit={onSubmit}
         onStop={stop}
+        onLive={() => setLiveOpen(true)}
         t={t.assistant}
+      />
+
+      <LiveVoicePanel
+        open={liveOpen}
+        onClose={() => setLiveOpen(false)}
+        labels={{
+          title: t.assistant.liveTitle,
+          connecting: t.assistant.liveConnecting,
+          listening: t.assistant.liveListening,
+          speaking: t.assistant.liveSpeaking,
+          end: t.assistant.liveEnd,
+          you: t.assistant.liveYou,
+          hint: t.assistant.liveHint,
+        }}
       />
     </div>
   );
@@ -331,6 +349,7 @@ function Composer({
   pending,
   onSubmit,
   onStop,
+  onLive,
   t,
 }: {
   draft: string;
@@ -338,6 +357,7 @@ function Composer({
   pending: boolean;
   onSubmit: (e: React.FormEvent) => void;
   onStop: () => void;
+  onLive: () => void;
   t: AssistantT;
 }) {
   // Mic audio → /api/transcribe (Gemini 2.5 Flash) → fill the draft.
@@ -357,6 +377,16 @@ function Composer({
     <div className="border-t border-border bg-background/80 backdrop-blur">
       <form onSubmit={onSubmit} className="mx-auto max-w-3xl px-6 py-4">
         <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-soft focus-within:border-ring">
+          <button
+            type="button"
+            onClick={onLive}
+            disabled={pending}
+            title={t.liveStart}
+            aria-label={t.liveStart}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-brand transition-colors hover:bg-brand-soft disabled:opacity-40"
+          >
+            <AudioLines className="h-4 w-4" />
+          </button>
           {supported && (
             <button
               type="button"
